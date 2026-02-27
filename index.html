@@ -93,15 +93,15 @@ const products = [
 let cart = [];
 
 function renderProducts() {
-    document.getElementById('product-grid').innerHTML = products.map(p => `
-        <div class="product-card group bg-neutral-900 rounded-2xl overflow-hidden cursor-pointer" onclick="addToCart(${p.id})">
+    document.getElementById('product-grid').innerHTML = products.map(product => `
+        <div class="product-card group bg-neutral-900 rounded-2xl overflow-hidden cursor-pointer" onclick="addToCart(${product.id})">
             <div class="h-80 overflow-hidden">
-                <img src="${p.image}" class="w-full h-full object-cover transition-transform duration-500">
+                <img src="${product.image}" class="w-full h-full object-cover transition-transform duration-500">
             </div>
             <div class="p-6">
-                <h3 class="font-bold text-lg mb-2">${p.name}</h3>
+                <h3 class="font-bold text-lg mb-2">${product.name}</h3>
                 <div class="flex justify-between items-center">
-                    <span class="text-xl font-bold">$${p.price}</span>
+                    <span class="text-xl font-bold">$${product.price}</span>
                     <button class="w-10 h-10 bg-neutral-800 rounded-full flex items-center justify-center hover:bg-white hover:text-black">+</button>
                 </div>
             </div>
@@ -111,49 +111,50 @@ function renderProducts() {
 
 function addToCart(id) {
     const product = products.find(p => p.id === id);
-    const item = cart.find(i => i.id === id);
+    const item = cart.find(cartItem => cartItem.id === id);
     item ? item.quantity++ : cart.push({ ...product, quantity: 1 });
     updateCart();
     showToast();
 }
 
 function updateCart() {
-    const count = cart.reduce((sum, i) => sum + i.quantity, 0);
+    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
     document.getElementById('cart-count').textContent = count;
     document.getElementById('cart-count-header').textContent = count;
-    document.getElementById('cart-total').textContent = '$' + cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    document.getElementById('cart-total').textContent = '$' + cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     
     const items = document.getElementById('cart-items');
     if (cart.length === 0) {
         items.innerHTML = '<div class="text-center text-neutral-500 mt-12">Your cart is empty</div>';
     } else {
-        items.innerHTML = cart.map(i => `
+        items.innerHTML = cart.map(item => `
             <div class="flex gap-4 bg-neutral-800/50 p-4 rounded-xl">
-                <img src="${i.image}" class="w-20 h-20 object-cover rounded-lg">
+                <img src="${item.image}" class="w-20 h-20 object-cover rounded-lg">
                 <div class="flex-1">
-                    <h4 class="font-bold text-sm">${i.name}</h4>
-                    <p class="text-neutral-400 text-sm">$${i.price}</p>
+                    <h4 class="font-bold text-sm">${item.name}</h4>
+                    <p class="text-neutral-400 text-sm">$${item.price}</p>
                     <div class="flex items-center gap-2 mt-2">
-                        <button onclick="changeQty(${i.id}, -1)" class="w-6 h-6 bg-neutral-700 rounded">-</button>
-                        <span>${i.quantity}</span>
-                        <button onclick="changeQty(${i.id}, 1)" class="w-6 h-6 bg-neutral-700 rounded">+</button>
+                        <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 bg-neutral-700 rounded">-</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 bg-neutral-700 rounded">+</button>
                     </div>
                 </div>
-                <button onclick="removeFromCart(${i.id})">✕</button>
+                <button onclick="removeFromCart(${item.id})">✕</button>
             </div>
         `).join('');
     }
 }
 
 function changeQty(id, delta) {
-    const item = cart.find(i => i.id === id);
+    const item = cart.find(cartItem => cartItem.id === id);
+    if (!item) return;
     item.quantity += delta;
     if (item.quantity <= 0) removeFromCart(id);
     else updateCart();
 }
 
 function removeFromCart(id) {
-    cart = cart.filter(i => i.id !== id);
+    cart = cart.filter(cartItem => cartItem.id !== id);
     updateCart();
 }
 
@@ -177,7 +178,7 @@ function showToast() {
 
 function checkout() {
     if (cart.length === 0) return;
-    alert('Thank you for your order! Total: $' + cart.reduce((sum, i) => sum + i.price * i.quantity, 0));
+    alert('Thank you for your order! Total: $' + cart.reduce((sum, item) => sum + item.price * item.quantity, 0));
     cart = [];
     updateCart();
     toggleCart();
